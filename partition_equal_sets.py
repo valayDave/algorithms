@@ -36,11 +36,11 @@ def optimise(a1:List[int],a2:List[int],num):
 # Minimization happens when arrays are nearly same size or one with larger sum is of smaller length than one with biggest sum. 
 def minimize(larger_sum_arr,smaller_sum_arr,some_num):
     found_result = False
-    # print("Minimising Elements",some_num,sum(larger_sum_arr),sum(smaller_sum_arr))
+    # print("Minimising Elements",some_num,sum(larger_sum_arr),sum(smaller_sum_arr),len(larger_sum_arr),len(smaller_sum_arr),smaller_sum_arr[len(smaller_sum_arr)-1],smaller_sum_arr[0])
     if len(larger_sum_arr) <= len(smaller_sum_arr):
         larger_sum_arr.sort()
         smaller_sum_arr.sort(reverse=True)
-        if smaller_sum_arr[len(smaller_sum_arr)-1] < some_num: # $  the difference is bigger than Smallest Elem in larger.
+        if smaller_sum_arr[len(smaller_sum_arr)-1] < some_num or smaller_sum_arr[0] > some_num: # $  the difference is bigger than Smallest Elem in larger.
             for index_s,curr_s in enumerate(smaller_sum_arr):
                 for index_l,curr_l in enumerate(larger_sum_arr):
                     # print("Checking :: ",curr_l,curr_s,2*(curr_l - curr_s),some_num,2*(curr_l - curr_s) == some_num)
@@ -117,12 +117,13 @@ def distribute(a1:List[int],a2:List[int],num):
     
     prev_value = some_num
     change_shift = True
+    # print("Starting Minimizing Loop ~! ",some_num,num)
     while some_num % 2 == 0 and change_shift and some_num!=0:
         # if some_num > 0:
         larger_sum_arr,smaller_sum_arr,change_shift = minimize(larger_sum_arr,smaller_sum_arr,some_num)
         some_num  = sum(larger_sum_arr) - sum(smaller_sum_arr)
+        # print("Value Of some_num From Here ::: ",some_num,len(larger_sum_arr),len(smaller_sum_arr),change_shift)
     
-    print("Value Of some_num From Here ::: ",some_num)
     return larger_sum_arr,smaller_sum_arr
 
 def partion_equal_sets(nums:List[int]):
