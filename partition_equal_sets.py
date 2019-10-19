@@ -37,34 +37,19 @@ def optimise(a1:List[int],a2:List[int],num):
 def minimize(larger_sum_arr,smaller_sum_arr,some_num):
     found_result = False
     # print("Minimising Elements",some_num,sum(larger_sum_arr),sum(smaller_sum_arr),len(larger_sum_arr),len(smaller_sum_arr),smaller_sum_arr[len(smaller_sum_arr)-1],smaller_sum_arr[0])
-    if len(larger_sum_arr) <= len(smaller_sum_arr):
-        larger_sum_arr.sort()
-        smaller_sum_arr.sort(reverse=True)
-        if smaller_sum_arr[len(smaller_sum_arr)-1] < some_num or smaller_sum_arr[0] > some_num: # $  the difference is bigger than Smallest Elem in larger.
-            for index_s,curr_s in enumerate(smaller_sum_arr):
-                for index_l,curr_l in enumerate(larger_sum_arr):
-                    # print("Checking :: ",curr_l,curr_s,2*(curr_l - curr_s),some_num,2*(curr_l - curr_s) == some_num)
-                    if 2*(curr_l - curr_s) == some_num: # .
-                        larger_sum_arr[index_l] = curr_s
-                        smaller_sum_arr[index_s] = curr_l
-                        found_result = True
-                        break
-                if found_result:
+    larger_sum_arr.sort()
+    smaller_sum_arr.sort(reverse=True)
+    if smaller_sum_arr[len(smaller_sum_arr)-1] < some_num or smaller_sum_arr[0] > some_num: # $  the difference is bigger than Smallest Elem in larger.
+        for index_s,curr_s in enumerate(smaller_sum_arr):
+            for index_l,curr_l in enumerate(larger_sum_arr):
+                # print("Checking :: ",curr_l,curr_s,2*(curr_l - curr_s),some_num,2*(curr_l - curr_s) == some_num)
+                if 2*(curr_l - curr_s) == some_num: # .
+                    larger_sum_arr[index_l] = curr_s
+                    smaller_sum_arr[index_s] = curr_l
+                    found_result = True
                     break
-    else:
-        larger_sum_arr.sort()
-        smaller_sum_arr.sort(reverse=True)
-        if smaller_sum_arr[0] > some_num:
-            for index_s,curr_s in enumerate(smaller_sum_arr):
-                for index_l,curr_l in enumerate(larger_sum_arr):
-                    if 2*(curr_l - curr_s) == some_num:
-                        larger_sum_arr[index_l] = curr_s
-                        smaller_sum_arr[index_s] = curr_l
-                        found_result = True
-                        break
-                if found_result:
-                    break
-
+            if found_result:
+                break
     return larger_sum_arr,smaller_sum_arr,found_result
 
 # This method will shift until the best result or an array with a larger sum is smaller in length than an array with smaller sum. 
@@ -78,21 +63,27 @@ def shift_elements(larger_sum_arr:List[int],smaller_sum_arr:List[int],shift_coun
     else:
         return larger_sum_arr,smaller_sum_arr,shift_counter
 
-
 def distribute(a1:List[int],a2:List[int],num):
     # This will distribute this number among the arrays.
     larger = None
     smaller = None
     a1_sum = sum(a1)
     a2_sum = sum(a2)
+    larger_sum = None
+    smaller_sum = None
     if a1_sum > a2_sum:
         larger = a1
         smaller = a2
+        larger_sum = a1_sum
+        smaller_sum = a2_sum
     else:
         larger = a2
         smaller = a1
+        larger_sum = a2_sum
+        smaller_sum = a1_sum
+    
     smaller = smaller+[num]
-    larger_sum = sum(larger)
+    # larger_sum = sum(larger)
     smaller_sum = sum(smaller)
     new_sum_difference  = smaller_sum - larger_sum
     larger_sum_arr = smaller
@@ -100,8 +91,6 @@ def distribute(a1:List[int],a2:List[int],num):
     if new_sum_difference < 0:
         larger_sum_arr = larger
         smaller_sum_arr = smaller
-    
-    some_num  = sum(larger_sum_arr) - sum(smaller_sum_arr)
 
     if len(larger_sum_arr) > len(smaller_sum_arr):
         shift_counter = 0
@@ -109,9 +98,10 @@ def distribute(a1:List[int],a2:List[int],num):
         # print("Shifted Elements", shift_counter,some_num)#larger_sum_arr,smaller_sum_arr,)
     
     some_num  = sum(larger_sum_arr) - sum(smaller_sum_arr)
+
     if some_num < 0:
         larger_sum_arr,smaller_sum_arr = smaller_sum_arr,larger_sum_arr
-        some_num = sum(larger_sum_arr) - sum(smaller_sum_arr)
+        some_num = abs(some_num)
     #     print("Value Of some_num After change ::: ",some_num)
     # print("Value Of some_num From Here ::: ",some_num)
     
