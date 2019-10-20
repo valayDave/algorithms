@@ -2,6 +2,11 @@
 from typing import List
 import random
 
+# ! This is an actual implementation. But I have done One thing wrong. 
+# ! My method which swaps to the root, is inefficient and can use the rule of a heap where
+# ! current.left = arr[2*i+1] and current.right = arr[2*i+2], Through this direct comparison
+# ! Can be done and will save so much more time in time and space complexity. 
+
 class Node:
     def __init__(self,value,id_val):
         self.left = None
@@ -39,7 +44,7 @@ def create_node(value:int)->Node:
     x = Node(value,random.randint(0,100000))
     return x
 
-# $ Swapps the values of the nodes up to root, until parent_value > child_value
+# $ Swapps the values of the nodes up to root, until parent_value > child_value or parent_value < child_value based on minimizer parameter
 def swap_to_root(start_node:Node,minimizer=False):
     parent_queue = [start_node]
     node_queue = []
@@ -83,7 +88,6 @@ def swap_to_root(start_node:Node,minimizer=False):
     else:
         return start_node
 
-
 def create_heap(arr:List[int],minimizer=False):
     heap_root_start = create_node(arr.pop(0))
     heap_root = heap_root_start
@@ -106,11 +110,9 @@ def create_heap(arr:List[int],minimizer=False):
             new_heap_root = node_queue.pop(0)
             heap_root = new_heap_root
             heap_root.left = addition_node
-        
+    
         heap_root_start = swap_to_root(heap_root_start,minimizer)
         node_queue.append(addition_node)
-    
-    heap_root_start = swap_to_root(heap_root_start,minimizer)
 
     return heap_root_start
         
@@ -155,5 +157,48 @@ def heap_sort(arr:List[int])->List[int]:
 
     return sorted_array
 
-# x = [17, 22, 12, 39, 16, 20, 15, 14, 17, 8, 9, 22, 3, 33, 39, 8, 34, 32, 14, 4, 11, 14, 20, 1, 29]
-# print(heap_sort(x))
+# Python program for implementation of heap Sort 
+  
+# To heapify subtree rooted at index i. 
+# n is size of heap 
+def heapify(arr, n, i): 
+    largest = i # Initialize largest as root 
+    l = 2 * i + 1     # left = 2*i + 1 
+    r = 2 * i + 2     # right = 2*i + 2 
+  
+    # See if left child of root exists and is 
+    # greater than root 
+    if l < n and arr[i] < arr[l]: 
+        largest = l 
+  
+    # See if right child of root exists and is 
+    # greater than root 
+    if r < n and arr[largest] < arr[r]: 
+        largest = r 
+  
+    # Change root, if needed 
+    if largest != i: 
+        arr[i],arr[largest] = arr[largest],arr[i] # swap 
+        # Heapify the root if the root is changed. 
+        heapify(arr, n, largest) 
+  
+# The main function to sort an array of given size 
+def heapSort_GFG(arr): 
+    n = len(arr) 
+  
+    # Build a maxheap. 
+    for i in range(n, -1, -1): 
+        print("Calling Heapify")
+        heapify(arr, n, i) 
+    print(arr,'\n')
+
+    # One by one extract elements 
+    for i in range(n-1, 0, -1): 
+        arr[i], arr[0] = arr[0], arr[i] # swap 
+        print("Calling Heapify")
+        heapify(arr, i, 0)
+        print(arr)
+    
+    return arr
+x = [17, 22, 12, 39, 16, 20, 15, 14, 17, 8, 9, 22, 3, 33, 39, 8, 34, 32, 14, 4, 11, 14, 20, 1, 29]
+print(heap_sort(x))
