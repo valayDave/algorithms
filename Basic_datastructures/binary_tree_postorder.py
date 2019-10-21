@@ -66,36 +66,35 @@ def postorder_tree_traversal(root:TreeNode) -> List[int]:
                 right_stack.insert(0,root)
                 root = root.right
             else:
-                # root_stack.insert(0,root)
-                # $ As there is no more right or left to this node check the root_stack
                 current_root = root
-                root_buffer.append(current_root)
-                print("Added To Root Buffer",list(map(lambda a:a.val,root_buffer)),list(map(lambda a:a.val,root_stack)))
+                # $ As there is no more right or left to this node add it to root_buffer
+                value_arr.append(current_root.val)
+                
                 if len(root_stack) > 0:
                     root_not_found = True
                     while root_not_found and len(root_stack) > 0:
+                        # $ extract the root of the node from the root_stack
                         new_root = root_stack.pop(0)
-                        # $ extract the root 
                         # $ see if nodes present in the Root stack have a right because the left for that has been explored. 
                         print("Checking ",new_root.val,root.val)
-                        # $ If the node is not in the right stack and 
+                        # $ Check if the node extracted is not in the right stack and is not None
+                        # $ We check the right stack because we come to this step when we have no
+                        # $ more left or right. So we could have even come here from the right instead of just left. 
                         if new_root.right is not None and new_root not in right_stack:
-                            print("The New Root is Not In right Stack and is not None")
-                            print("Breaking to iterate again",list(map(lambda a:a.val,root_buffer)),list(map(lambda a:a.val,root_stack)),new_root.right.val,new_root.val)
+                            # print("The New Root is Not In right Stack and is not None")
+                            # print("Breaking to iterate again",list(map(lambda a:a.val,root_buffer)),list(map(lambda a:a.val,root_stack)),new_root.right.val,new_root.val)
+                            # $ If am a node whose right has never been encountered before than I will add it to 
+                            # $ root_stack and to right_stack so that this same node doesn't come back again.   
                             root_stack.insert(0,new_root)
                             right_stack = [new_root]
                             root = new_root.right
                             root_not_found = False
                             break
                         else:
-                            root_buffer.append(new_root)
-
-                    print("Broken Outta Loop :",list(map(lambda a:a.val,root_buffer)),root_not_found,len(root_stack) == 0,current_root.val,root.val)
-                    
-                    # $ If there were no right nodes found while traversing to the root then break. 
-                    if (not root_not_found and len(root_stack) == 0 and current_root == root ) or root_not_found:    
-                        value_arr=list(map(lambda a:a.val,root_buffer))
-                        print(list(map(lambda a:a.val,root_buffer)))
+                            value_arr.append(new_root.val)
+                            
+                    # $ If there were no right nodes found while traversing back to the root then break. 
+                    if root_not_found:
                         break
                 else:
                     break
