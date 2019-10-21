@@ -3,22 +3,26 @@ from bubble_sort import bubble_sort
 from heap_sort import heap_sort
 from heap_sort import heapSort_GFG
 from radix_sort import radix_sort
+from insertion_sort import insertion_sort
 
 test_cases = [
     
 ]
 import random
 for i in range(0,30):
-    y = np.random.randint(120000,size = random.randint(1,300))
+    # y = np.random.randint(120000,size = random.randint(1,300))
+    # y = np.random.randint(100000,size = 20000)
+    y = np.random.randint(100,size = 20)
     x = list(y)
     x.sort()
     test_cases.append((y,x))
 
 algos_to_test = [
-    (heapSort_GFG,'heapSort_GFG'),
+    # (heapSort_GFG,'heapSort_GFG'),
     (heap_sort,'heap_sort'),
     (bubble_sort,'bubble_sort'),
-    (radix_sort,'radix_sort')
+    (radix_sort,'radix_sort'),
+    (insertion_sort,'insertion_sort')
 ]
 
 for algo,algo_name in algos_to_test:

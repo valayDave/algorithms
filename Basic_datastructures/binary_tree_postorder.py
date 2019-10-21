@@ -51,8 +51,7 @@ def postorder_tree_traversal(root:TreeNode) -> List[int]:
     if root is None:
         return []
     root_stack = []
-    value_arr = []
-    root_buffer = [] # $ Holds the final arrangement of elements. 
+    value_arr = []# $ Holds the final arrangement of elements. 
     right_stack = []
     while True:
         if root.left is not None:

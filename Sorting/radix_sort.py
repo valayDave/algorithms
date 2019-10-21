@@ -19,8 +19,7 @@ def counting_sort_by_digit(arr:List[int],pos:int):
     
     for i in range(0,count_map.__len__()):
         while count_map[i].__len__() > 0:
-            val = count_map[i].pop(0)
-            new_arr.append(val)
+           new_arr.append(count_map[i].pop(0))
     
     return new_arr
 
