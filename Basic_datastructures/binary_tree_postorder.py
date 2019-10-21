@@ -29,12 +29,20 @@ case4_node.right = None
 case4_node.left.left = None
 case4_node.left.right = TreeNode(2)
 
+# [3,null,2,1,4]
+case5_node = TreeNode(3)
+case5_node.left = None
+case5_node.right = TreeNode(2)
+case5_node.right.left = TreeNode(1)
+case5_node.right.right = TreeNode(4)
+
 # $ POST ORDER = Left, Right, Root
 test_cases = [
     (case_1_node,[3,2,1]),
     (case_2_node,[4,3,2,1]),
     (case3_node,[1,3,2]),
-    (case4_node,[2,1,3])
+    (case4_node,[2,1,3]),
+    (case5_node,[1,4,2,3])
 ]
 
 
@@ -75,24 +83,22 @@ def postorder_tree_traversal(root:TreeNode) -> List[int]:
                     while root_not_found and len(root_stack) > 0:
                         # $ extract the root of the node from the root_stack
                         new_root = root_stack.pop(0)
-                        # $ see if nodes present in the Root stack have a right because the left for that has been explored. 
-                        print("Checking ",new_root.val,root.val)
                         # $ Check if the node extracted is not in the right stack and is not None
                         # $ We check the right stack because we come to this step when we have no
                         # $ more left or right. So we could have even come here from the right instead of just left. 
                         if new_root.right is not None and new_root not in right_stack:
                             # print("The New Root is Not In right Stack and is not None")
-                            # print("Breaking to iterate again",list(map(lambda a:a.val,root_buffer)),list(map(lambda a:a.val,root_stack)),new_root.right.val,new_root.val)
+                            # print("Breaking to iterate again",list(map(lambda a:a.val,root_stack)),new_root.right.val,new_root.val)
                             # $ If am a node whose right has never been encountered before than I will add it to 
                             # $ root_stack and to right_stack so that this same node doesn't come back again.   
                             root_stack.insert(0,new_root)
-                            right_stack = [new_root]
+                            right_stack += [new_root]
                             root = new_root.right
                             root_not_found = False
                             break
                         else:
                             value_arr.append(new_root.val)
-                            
+
                     # $ If there were no right nodes found while traversing back to the root then break. 
                     if root_not_found:
                         break
