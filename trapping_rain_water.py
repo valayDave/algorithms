@@ -41,15 +41,6 @@ def trap_water(height:List[int]) -> int:
             elif prev_y < largest_lhs_column_height: # $ [4,3,2]
                 collection_buffer+=(largest_lhs_column_height-new_y)
                 pass
-            elif prev_y == largest_lhs_column_height: # $ This means [3,3,2]
-                pass
-                # ! This line Should Not Be Invoked
-                print("BAD Invocation prev_y > new_y and prev_y > largest_lhs_column_height",new_y,new_x,prev_y,prev_x,largest_lhs_column_height,largest_lhs_column_index)
-            elif prev_y > largest_lhs_column_height: # $ This means : [3,4,2]
-                print("BAD Invocation prev_y > largest_lhs_column_height and prev_y > new_y",new_y,new_x,prev_y,prev_x,largest_lhs_column_height,largest_lhs_column_index)
-                # $ Reset the value of largest_lhs and set collection_buffer = 0
-                pass
-            pass
         elif prev_y == new_y:
             if prev_y == 0:
                 collection_buffer+=(largest_lhs_column_height)
@@ -61,26 +52,15 @@ def trap_water(height:List[int]) -> int:
             elif prev_y < largest_lhs_column_height: # $ This means : [4,3,3...]
                 collection_buffer+=(largest_lhs_column_height-new_y)
                 pass
-            elif prev_y > largest_lhs_column_height: # $ This means : [3,4,4]
-                # ! This line Should Not Be Invoked
-                print("BAD Invocation prev_y == new_y and prev_y > largest_lhs_column_height",new_y,new_x,prev_y,prev_x,largest_lhs_column_height,largest_lhs_column_index)
-                largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
-                collection_buffer =0
-                pass
-            pass
         else: # $ This means prev_y < new_y
             if prev_x == largest_lhs_column_index: # $ This means : [3,4]
                 # $ I Should Shift the largest_lhs_column_index to new_x
-                # if collection_buffer > 0:
-                #     trapped_units+=collection_buffer
                 collection_buffer = 0                    
                 largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
                 pass
             elif prev_y < largest_lhs_column_height: # $ This means : [6,3,4] or [4,3,4] or [3,2,4]
-
                 if new_y < largest_lhs_column_height: # $ This means : [6,3,4]
                     pass
-                    # collection_buffer = collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index) + (new_y-prev_y)
                     if prev_y == 0:
                         collection_buffer+= (largest_lhs_column_height -new_y)
                     else:
@@ -89,17 +69,9 @@ def trap_water(height:List[int]) -> int:
                         collection_buffer = 0
                         largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
                 else:# $ This means : [3,2,3] or [3,2,4] : If new_y >= largest_lhs_column_height new_y can be used for calc of buffer. 
-                    # collection_buffer+=(largest_lhs_column_height-prev_y)
                     trapped_units+=collection_buffer
                     collection_buffer = 0
                     largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
-                    pass
-                pass
-            else: # $ prev_y >= largest_lhs_column_height --> new_y >=largest_lhs_column_height
-                # $ This Means : [4, 5,6]
-                collection_buffer = 0
-                print("BAD Invocation prev_y < new_y and prev_y > largest_lhs_column_height",new_y,new_x,prev_y,prev_x,largest_lhs_column_height,largest_lhs_column_index)
-                largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
 
         prev_x,prev_y = new_x,new_y  
     
