@@ -52,14 +52,14 @@ def trap_water(height:List[int]) -> int:
             pass
         elif prev_y == new_y:
             if prev_y == 0:
-                collection_buffer+=(largest_lhs_column_index)
-            if prev_x == largest_lhs_column_index: # $ This means : [4,4]
+                collection_buffer+=(largest_lhs_column_height)
+            elif prev_x == largest_lhs_column_index: # $ This means : [4,4]
                 # $ I Should Shift the largest_lhs_column_index to new_x
                 largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
                 collection_buffer =0
                 pass
             elif prev_y < largest_lhs_column_height: # $ This means : [4,3,3...]
-                collection_buffer+=(largest_lhs_column_index-new_y)
+                collection_buffer+=(largest_lhs_column_height-new_y)
                 pass
             elif prev_y > largest_lhs_column_height: # $ This means : [3,4,4]
                 # ! This line Should Not Be Invoked
@@ -103,7 +103,7 @@ def trap_water(height:List[int]) -> int:
 
         prev_x,prev_y = new_x,new_y  
     
-    print("trapped Water : ",trapped_units)
+    # print("trapped Water : ",trapped_units)
     return trapped_units
 
         
