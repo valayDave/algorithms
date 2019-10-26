@@ -5,7 +5,8 @@ test_cases = [
     ([4,2,3],1),
     ([2,1,0,2],3),
     ([2,2,2,2,2],0),
-    ([2,3,1,1,1,1,3],8)
+    ([2,3,1,1,1,1,3],8),
+    ([5,4,1,2],1)
 ]
 
 
@@ -19,6 +20,18 @@ test_cases = [
             # $ collect_water
         # $ Else : 
             # $ dont_collect_water 
+def collect_water(height:List[int]) -> int:
+    tallest = height[len(height)-1]
+    # print('collecting_water',height,tallest)
+    collected_water = 0
+    for i in range(len(height)-2,0,-1):
+        if height[i] < tallest:
+            collected_water+= tallest - height[i]
+        else:
+            break
+
+    return collected_water
+
 def trap_water(height:List[int]) -> int:
     if len(height) in [0,1]:
         return 0
@@ -26,14 +39,16 @@ def trap_water(height:List[int]) -> int:
     trapped_units = 0
     prev_x,prev_y  = None, None
     largest_lhs_column_index,largest_lhs_column_height = None,None
-    while len(coordinates) > 0:
-        largest_lhs_column_index,largest_lhs_column_height = coordinates.pop(0)
+    coord_index = 0
+    while coord_index < len(coordinates):
+        largest_lhs_column_index,largest_lhs_column_height = coordinates[coord_index]
+        coord_index+=1
         if largest_lhs_column_height > 0:
             break
     collection_buffer = 0
     prev_x,prev_y = largest_lhs_column_index,largest_lhs_column_height    
-    while len(coordinates) > 0:
-        new_x,new_y = coordinates.pop(0)
+    while coord_index < len(coordinates):
+        new_x,new_y = coordinates[coord_index]
         # print(prev_y,new_y,largest_lhs_column_height,collection_buffer,trapped_units)
         if prev_y > new_y:
             if prev_x == largest_lhs_column_index: # $ This means : [4,3]
@@ -60,11 +75,11 @@ def trap_water(height:List[int]) -> int:
                 pass
             elif prev_y < largest_lhs_column_height: # $ This means : [6,3,4] or [4,3,4] or [3,2,4]
                 if new_y < largest_lhs_column_height: # $ This means : [6,3,4]
-                    pass
                     if prev_y == 0:
                         collection_buffer+= (largest_lhs_column_height -new_y)
                     else:
-                        collection_buffer = collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
+                        collection_buffer =  collect_water(height[largest_lhs_column_index:new_x+1]) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
+                        # print("Adding to Colletion Buffer",collection_buffer)
                         trapped_units+=collection_buffer
                         collection_buffer = 0
                         largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
@@ -74,7 +89,7 @@ def trap_water(height:List[int]) -> int:
                     largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
 
         prev_x,prev_y = new_x,new_y  
-    
+        coord_index+=1
     # print("trapped Water : ",trapped_units)
     return trapped_units
 
