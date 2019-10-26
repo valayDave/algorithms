@@ -8,7 +8,8 @@ test_cases = [
     ([2,3,1,1,1,1,3],8),
     ([5,4,1,2],1),
     ([5,2,1,2,1,5],14),
-    ([5,5,1,7,1,1,5,2,7,6],23)
+    ([5,5,1,7,1,1,5,2,7,6],23),
+    ([6,4,2,0,3,2,0,3,1,4,5,3,2,7,5,3,0,1,2,1,3,4,6,8,1,3],83)
 ]
 
 
@@ -57,6 +58,7 @@ def trap_water(height:List[int]) -> int:
         if largest_lhs_column_height > 0:
             break
     collection_buffer = 0
+    previously_collected_from= (None,None)
     prev_x,prev_y = largest_lhs_column_index,largest_lhs_column_height    
     while coord_index < len(coordinates):
         new_x,new_y = coordinates[coord_index]
@@ -91,6 +93,7 @@ def trap_water(height:List[int]) -> int:
                     else:
                         collection_area = height[largest_lhs_column_index:new_x+1]
                         collection_buffer =  collect_water(height[largest_lhs_column_index:new_x+1]) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
+                        previously_collected_from = (largest_lhs_column_index,new_x)
                         if len(collection_area) == len(height):
                             trapped_units = collection_buffer
                         else:
@@ -103,10 +106,14 @@ def trap_water(height:List[int]) -> int:
                     collection_buffer =  collect_water(collection_area) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
                     if len(collection_area) == len(height):
                             trapped_units = collection_buffer
+                    elif previously_collected_from[0] == largest_lhs_column_index:
+                        redundant_area = height[largest_lhs_column_index:previously_collected_from[1]+1]
+                        trapped_units += collection_buffer - collect_water(redundant_area)
                     else:
                         trapped_units+=collection_buffer
                     # print("Adding 2 Colletion Buffer",collection_buffer)
                     collection_buffer = 0
+                    previously_collected_from = (largest_lhs_column_index,new_x)
                     largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
 
         prev_x,prev_y = new_x,new_y  
