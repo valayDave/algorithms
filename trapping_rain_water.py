@@ -9,7 +9,8 @@ test_cases = [
     ([5,4,1,2],1),
     ([5,2,1,2,1,5],14),
     ([5,5,1,7,1,1,5,2,7,6],23),
-    ([6,4,2,0,3,2,0,3,1,4,5,3,2,7,5,3,0,1,2,1,3,4,6,8,1,3],83)
+    ([6,4,2,0,3,2,0,3,1,4,5,3,2,7,5,3,0,1,2,1,3,4,6,8,1,3],83),
+    ([9,6,8,8,5,6,3],3)
 ]
 
 
@@ -36,13 +37,15 @@ def collect_water(height:List[int]) -> int:
         step = 1 
     
     collected_water = 0
+    stop_index = 0
     for i in range(start,stop,step):
         if height[i] < tallest:
             collected_water+= tallest - height[i]
         else:
+            stop_index = i
             break
-    # print('collecting_water',height,tallest,collected_water)
-    return collected_water
+    # print('collecting_water',height,tallest,collected_water,'NO_STOP' if stop_index == 0 else stop_index)
+    return collected_water,stop_index
 
 def trap_water(height:List[int]) -> int:
     if len(height) in [0,1]:
@@ -91,15 +94,18 @@ def trap_water(height:List[int]) -> int:
                     if prev_y == 0:
                         collection_buffer+= (largest_lhs_column_height -new_y)
                     else:
-                        # print("Adding to Colletion Buffer",trapped_units)
+                        # print("Adding to Colletion Buffer",trapped_units,'\n')
                         collection_area = height[largest_lhs_column_index:new_x+1]
-                        collection_buffer =  collect_water(height[largest_lhs_column_index:new_x+1]) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
+                        collection_buffer,stop_index =  collect_water(height[largest_lhs_column_index:new_x+1]) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
                         
                         if len(collection_area) == len(height):
                             trapped_units = collection_buffer
                         elif previously_collected_from[0] == largest_lhs_column_index:
-                            redundant_area = height[largest_lhs_column_index:previously_collected_from[1]+1]
-                            trapped_units += collection_buffer - collect_water(redundant_area)
+                            redundant_area_buffer,redundant_stop_index = collect_water(height[largest_lhs_column_index:previously_collected_from[1]+1])
+                            if redundant_stop_index >=stop_index:
+                                trapped_units += collection_buffer - redundant_area_buffer
+                            else:
+                                trapped_units += collection_buffer
                             # trapped_units = collection_buffer
                         else:
                             trapped_units+=collection_buffer
@@ -107,15 +113,17 @@ def trap_water(height:List[int]) -> int:
                         collection_buffer = 0
                         # largest_lhs_column_index,largest_lhs_column_height = new_x,new_y
                 else:# $ This means : [3,2,3] or [3,2,4] : If new_y >= largest_lhs_column_height new_y can be used for calc of buffer. 
-                    # print("Adding 2 Colletion Buffer",trapped_units)
+                    # print("Adding 2 Colletion Buffer",trapped_units,'\n')
                     collection_area = height[largest_lhs_column_index:new_x+1]
-                    collection_buffer =  collect_water(collection_area) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
-                    
+                    collection_buffer,stop_index =  collect_water(collection_area) #collection_buffer - (largest_lhs_column_height-new_y)*(new_x - largest_lhs_column_index)+(largest_lhs_column_height-new_y) 
                     if len(collection_area) == len(height):
                             trapped_units = collection_buffer
                     elif previously_collected_from[0] == largest_lhs_column_index:
-                        redundant_area = height[largest_lhs_column_index:previously_collected_from[1]+1]
-                        trapped_units += collection_buffer - collect_water(redundant_area)
+                        redundant_area_buffer,redundant_stop_index = collect_water(height[largest_lhs_column_index:previously_collected_from[1]+1])
+                        if redundant_stop_index >=stop_index:
+                            trapped_units += collection_buffer - redundant_area_buffer
+                        else:
+                            trapped_units += collection_buffer
                     else:
                         trapped_units+=collection_buffer
                     
