@@ -39,28 +39,48 @@ def maximal_rectangle(matrix: List[List[str]]):
             # print("Setting Current Units Of ",current_units,start_index,end_index)
             j_start = i-1 if i > 0 else i+1  
             for j in range(j_start,len(one_indexes)):
+                found_match = False
                 if j == i:
                     continue
                 next_row_index_tuple_arr = one_indexes[j]
                 for next_start_index,next_end_index in next_row_index_tuple_arr:
+                    # print((start_index,end_index),i,'      ',(next_start_index,next_end_index),current_units,j)
                     if (start_index == next_start_index and end_index == start_index):
                         current_units += current_units_counter
-                    elif ((start_index <= next_end_index) and next_start_index <= start_index and (next_end_index+1 - next_start_index)>=current_units_counter) and next_end_index >=end_index:
+                        found_match = True
+                    elif ((start_index <= next_end_index) and next_start_index <= start_index and (next_end_index+1 - next_start_index)>=current_units_counter) and next_end_index >=end_index and start_index!=end_index:
                         current_units += current_units_counter
-                        # print((start_index,end_index),i,'      ',(next_start_index,next_end_index),current_units,j)
+                        found_match = True
+                         
+                
+                if not found_match and j > i:
+                    break
                     # else:
                     #     break
             if current_units > max_counter:
-                # print("setting Counter :::: ",current_units)
+                # print("setting Counter :::: ",current_units,i)
                 max_counter = current_units
     return max_counter
+
+k1 = [
+    ["0","0","0","1","0","1","1","1"],
+    ["0","1","1","0","0","1","0","1"],
+    ["1","0","1","1","1","1","0","1"],
+    ["0","0","0","1","0","0","0","0"],
+    ["0","0","1","0","0","0","1","0"],
+    ["1","1","1","0","0","1","1","1"],
+    ["1","0","0","1","1","0","0","1"],
+    ["0","1","0","0","1","1","0","0"],
+    ["1","0","0","1","0","0","0","0"]
+] # 4
+
 
 x = [
   ["1","0","1","0","0"],
   ["1","0","1","1","1"],
   ["1","1","1","1","1"],
   ["1","0","0","1","0"]
-]
+] # 6
 
 
 y = [
@@ -68,20 +88,20 @@ y = [
   ["1","1","1","1"],
   ["1","1","1","1"],
   ["1","0","0","1"]
-]
+] # 9
 
 z = [
   ["1","1","0","0","0"],
   ["1","1","0","1","1"],
   ["1","1","0","1","1"],
   ["1","1","0","1","1"]
-]
+] # 8
 t = [
     ["1","0","1","0"],
     ["1","0","1","1"],
     ["1","0","1","1"],
     ["1","1","1","1"]
-]
+] # 6 
 
 k = [
     ["1","1","1","1","1","1","1","1"],
@@ -89,7 +109,7 @@ k = [
     ["1","1","1","1","1","1","1","0"],
     ["1","1","1","1","1","0","0","0"],
     ["0","1","1","1","1","0","0","0"]
-]
+] # 21
 q = [
     ["0","1","1","0","1"],
     ["1","1","0","1","0"],
@@ -97,9 +117,20 @@ q = [
     ["1","1","1","1","0"],
     ["1","1","1","1","1"],
     ["0","0","0","0","0"]
-]
-print(maximal_rectangle(x))
-print(maximal_rectangle(y))
-print(maximal_rectangle(t))
-print(maximal_rectangle(z))
-print(maximal_rectangle(q))
+] # 9
+
+q1 = [
+    ["1","0","1","0"],
+    ["1","0","1","1"],
+    ["1","0","1","1"],
+    ["1","1","1","1"]
+] #6
+
+print(maximal_rectangle(x),'x')
+print(maximal_rectangle(y),'y')
+print(maximal_rectangle(t),'t')
+print(maximal_rectangle(z),'z')
+print(maximal_rectangle(q1),'q1')
+print(maximal_rectangle(k1),'k1')
+print(maximal_rectangle(q),'q')
+print(maximal_rectangle(k),'k')
