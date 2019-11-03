@@ -2,7 +2,11 @@ from typing import List
 from typing import Tuple
 from typing import Set
 from operator import itemgetter
-
+import sys
+import numpy as np
+# sys.path.append('/usr/local/opt/pygobject3/lib/python3.7/site-packages/')
+# sys.path.append('/usr/local/opt/graph-tool/lib/python3.7/site-packages/')
+from graph_tool.all import *
 import random
 
 # Create a graph given in the above diagram 
@@ -10,7 +14,7 @@ import random
 # $ i = source_node_id , j = destination_node_id
 
 
-class Graph:
+class Custom_Graph:
     def __init__(self, matrix:List[List[int]]):
         self.graph = matrix
         self.org_graph =  [i[:] for i in matrix]
@@ -32,6 +36,7 @@ class SubSetWithDup(object):
             if i == 0 or (i > 0 and nums[i-1] != nums[i]):
                 self.dfs(nums[i+1:], path+[nums[i]])
 
+# $ Finds all Combinations with elems of left_overs with  into two sets which have source and Sink Node
 def extract_set_combos(source_node:int,sink_node:int,left_overs:List):
     left_overs_vals = SubSetWithDup().subsetsWithDup(left_overs)
     # del len_hash_map[0]
@@ -53,7 +58,7 @@ def extract_set_combos(source_node:int,sink_node:int,left_overs:List):
 
 '''Returns true if there is a path from source 's' to sink 't' in 
 residual graph. Also fills parent[] to store the path '''
-def BFS(graph_object:Graph,s, t, parent): 
+def BFS(graph_object:Custom_Graph,s, t, parent): 
 
     # Mark all the vertices as not visited 
     visited =[False]*(graph_object.ROW) 
@@ -83,7 +88,8 @@ def BFS(graph_object:Graph,s, t, parent):
     # If we reached sink in BFS starting from source, then return 
     # true, else false 
     return True if visited[t] else False
-            
+
+# $ Creates the Custom_Graph of Test Case. 
 def create_graph(num_nodes=6,max_edge_value=20):
     graph = []
     for i in range(num_nodes):
@@ -102,26 +108,33 @@ def create_graph(num_nodes=6,max_edge_value=20):
         graph.append(row)
     return graph
 
+
+# $ Creates the Test case for extracting Flow
 def create_test_case(source_node=0,sink_node=5):
     num_nodes = abs(sink_node-source_node)+1
     # print("Creating graph With node : ",num_nodes)
-    created_graph = Graph(create_graph(num_nodes))
+    created_graph = Custom_Graph(create_graph(num_nodes))
     parent = [-1]*(created_graph.ROW)
     if BFS(created_graph,source_node,sink_node,parent):
         return created_graph
     else:
         return create_test_case(source_node,sink_node)
 
-def capacity_case1(graph_object:Graph,S:Set[int],T:Set[int]):
+
+# $ This is by Definition of the TESTCASE OF EVALUATION in Homework
+def capacity_case1(graph_object:Custom_Graph,S:Set[int],T:Set[int]):
     return find_capacity_of_cut_sets(graph_object,S,T) - find_capacity_of_cut_sets(graph_object,T,S) 
 
-def capacity_case2(graph_object:Graph,S:Set[int],T:Set[int]):
+# $ This is by Definition of the TESTCASE OF EVALUATION in Homework
+def capacity_case2(graph_object:Custom_Graph,S:Set[int],T:Set[int]):
     return min([find_capacity_of_cut_sets(graph_object,S,T) ,find_capacity_of_cut_sets(graph_object,T,S)])
 
-def find_flow_of_cut(graph_object:Graph,S:Set[int],T:Set[int]):
+# $ This is by Definition of the ACTUAL ALGO
+def find_flow_of_cut(graph_object:Custom_Graph,S:Set[int],T:Set[int]):
     return find_capacity_of_cut_sets(graph_object,S,T) - find_capacity_of_cut_sets(graph_object,T,S) 
 
-def find_capacity_of_cut_sets(graph_object:Graph,S:Set[int],T:Set[int]):
+# $ This is by Definition of the ACTUAL ALGO
+def find_capacity_of_cut_sets(graph_object:Custom_Graph,S:Set[int],T:Set[int]):
     # c(S, T) = SUM_OF(u∈S, SUM_OF (v∈T c(u, v) ) )
     capacity = 0
     for u in S:
@@ -130,8 +143,8 @@ def find_capacity_of_cut_sets(graph_object:Graph,S:Set[int],T:Set[int]):
     return capacity
 
 # $ Done after the Max flow is extracted. It runs a BFS to see reachable nodes from the start node and those are the part of the cut. 
-def find_min_cut_from_redsidual_graph(graph_object:Graph,source_node:int,sink_node:int):
-    # $ To Find cut set S,T : Do a BFS to find the nodes reachable from s in Residual Graph. They become part of S. 
+def find_min_cut_from_redsidual_graph(graph_object:Custom_Graph,source_node:int,sink_node:int):
+    # $ To Find cut set S,T : Do a BFS to find the nodes reachable from s in Residual Custom_Graph. They become part of S. 
     parent_arr = [-1]*(graph_object.ROW) 
     while BFS(graph_object,source_node, sink_node, parent_arr ):
         pass
@@ -142,35 +155,10 @@ def find_min_cut_from_redsidual_graph(graph_object:Graph,source_node:int,sink_no
     
     reachable_indexes_S = set(reachable_indexes)
     reachable_indexes_T = set([i for i in range(graph_object.ROW)]) - reachable_indexes_S
-    flow_by_definition = find_flow_of_cut(graph_object,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut = find_capacity_of_cut_sets(graph_object,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut_case1 = capacity_case1(graph_object,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut_case2 = capacity_case2(graph_object,reachable_indexes_S,reachable_indexes_T) 
-    print('Extracting CUT From BFS Of Residual Graph.','\n')
-    print('cuts :',reachable_indexes_S,reachable_indexes_T)
-    print('flow_by_definition',flow_by_definition)
-    print('capacity_of_cut',capacity_of_cut)
-    print('capacity_of_cut_case1',capacity_of_cut_case1)
-    print('capacity_of_cut_case2',capacity_of_cut_case2, '\n')
+    return reachable_indexes_S,reachable_indexes_T
 
-def find_cut():
-    # http://www.cs.toronto.edu/~lalla/373s16/notes/MFMC.pdf
-    '''
-    Let (G, s, t, c) be a flow network,
-        
-        an s-t cut in G is a partition of V into two sets S and T
-
-            such that:
-            1. S ∪ T = V
-            2. S ∩ T = ∅
-            3. s ∈ S and t ∈ T
-
-        c is the capacity function c(S,T) 
-    '''
-    pass
-    
 # Returns tne maximum flow from s to t in the given graph 
-def find_max_flow(graph_object:Graph, source, sink): 
+def find_max_flow(graph_object:Custom_Graph, source, sink): 
 
     # This array is filled by BFS and to store path 
     parent = [-1]*(graph_object.ROW) 
@@ -225,7 +213,7 @@ def find_max_flow(graph_object:Graph, source, sink):
 
 
 # $ Creates all posssible cuts from the given graph. 
-def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
+def find_possible_cuts(graph_object:Custom_Graph,source_node:int,sink_node:int):
     '''
     an s-t cut in G is a partition of V into two sets S and T
     such that:
@@ -259,17 +247,60 @@ test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(1)]
 results = [find_max_flow(test_case,SOURCE_NODE,SINK_NODE) for test_case in test_cases]
 
 tests = list(zip(test_cases,results))
-# tests = [(Graph(graph),find_max_flow(Graph(graph),0,5))]
+# tests = [(Custom_Graph(graph),find_max_flow(Custom_Graph(graph),0,5))]
+
+def to_graph_tool(adj):
+    g = Graph(directed=True)
+    edge_weights = g.new_edge_property('double')
+    g.edge_properties['weight'] = edge_weights
+    nnz = np.nonzero(np.triu(adj,1))
+    nedges = len(nnz[0])
+    g.add_edge_list(np.hstack([np.transpose(nnz),np.reshape(adj[nnz],(nedges,1))]),eprops=[edge_weights])
+    return g
+
+def construct_graph(graph_object:Custom_Graph):
+    graph_1 = Graph(directed=True)
+    vertices = []
+    print(np.array(graph_object.org_graph))
+    # for i in range(graph_object.ROW):
+    #     for j in range(graph_object.ROW):
+    #         if graph_object.org_graph[i][j] > 0:
+    #             vertex_i = graph_1.vertex(i,add_missing=True)
+    #             vertex_j = graph_1.vertex(j,add_missing=True)
+    #             graph_1.add_edge(vertex_i,vertex_j,)
+    graph_1 = to_graph_tool(np.array(graph_object.org_graph))
+    # graph_draw(graph_1,vertex_text=graph_1.vertex_index, vertex_font_size=18, eprops=graph_1.ep['weight'], output="two-nodes.png")
+    cap = graph_1.edge_properties["weight"]
+    # state = minimize_blockmodel_dl(graph_1,state_args=dict(recs=[graph_1.ep.weight],rec_types=["real-exponential"]))
+    graph_draw(graph_1,edge_text=cap, vertex_shape="double_circle",edge_color="black", vertex_text=graph_1.vertex_index,vertex_font_size=18, edge_font_size=18, edge_text_color = 'white',output="two-nodes.png")
+    
+    # state.draw( vertex_shape=state.get_blocks(), eprops=graph_1.ep.weight,,output="polbooks_blocks_mdl.pdf")
+
+
 
 for test_case,op in tests:
     max_flow,min_cuts = op
+    # $ Find All Possible Cuts : This is to bruteforce and check if testcases to evaluate the Questions in the Homework. 
     all_possible_cuts = find_possible_cuts(test_case,SOURCE_NODE,SINK_NODE)
     print('GRAPH ::','\n')
     print(test_case.org_graph,'\n')
     print('Max Flow : ',max_flow,'\n')
     print('Min Cut : ',min_cuts,'\n')
 
-    find_min_cut_from_redsidual_graph(test_case,SOURCE_NODE,SINK_NODE)
+    # $ Find Optimal Solution / Cut of graph by following the algorithm. 
+    # $ Source : https://www.cs.cmu.edu/~ckingsf/bioinfo-lectures/netflow.pdf
+    reachable_indexes_S,reachable_indexes_T =find_min_cut_from_redsidual_graph(test_case,SOURCE_NODE,SINK_NODE)
+    flow_by_definition = find_flow_of_cut(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut = find_capacity_of_cut_sets(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case1 = capacity_case1(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case2 = capacity_case2(test_case,reachable_indexes_S,reachable_indexes_T) 
+    print('Extracting CUT From BFS Of Residual Graph.','\n')
+    print('cuts :',reachable_indexes_S,reachable_indexes_T)
+    print('flow_by_definition',flow_by_definition)
+    print('capacity_of_cut',capacity_of_cut)
+    print('capacity_of_cut_case1',capacity_of_cut_case1)
+    print('capacity_of_cut_case2',capacity_of_cut_case2, '\n')
+    
     cut_data = []
     for cut in all_possible_cuts:
         S,T = cut
@@ -285,6 +316,7 @@ for test_case,op in tests:
         #     print('capacity_of_cut',capacity_of_cut)
         #     print('capacity_of_cut_case1',capacity_of_cut_case1)
         #     print('capacity_of_cut_case2',capacity_of_cut_case2,'\n')
+    # $ Find Min Capacity From all cuts according to capacity definition in question and print thier Cut values. 
     capacity_of_cut_case1_max_data = min(cut_data,key=itemgetter(2))
     capacity_of_cut_case2_max_data = min(cut_data,key=itemgetter(3))
     # print('max_flow',max_flow,'\n')
@@ -310,6 +342,8 @@ for test_case,op in tests:
     print('capacity_case1',capacity_of_cut_min_data[2])
     print('capacity_case2',capacity_of_cut_min_data[3])
     print('capacity_of_cut',capacity_of_cut_min_data[4],'\n\n')
+
+    construct_graph(test_case)
     
     # for cut in cut_data:
     #     print(*cut)
