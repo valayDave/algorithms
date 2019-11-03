@@ -253,7 +253,7 @@ def to_graph_tool(adj):
     g = Graph(directed=True)
     edge_weights = g.new_edge_property('double')
     g.edge_properties['weight'] = edge_weights
-    nnz = np.nonzero(np.triu(adj,1))
+    nnz = np.nonzero(adj)
     nedges = len(nnz[0])
     g.add_edge_list(np.hstack([np.transpose(nnz),np.reshape(adj[nnz],(nedges,1))]),eprops=[edge_weights])
     return g
@@ -272,7 +272,7 @@ def construct_graph(graph_object:Custom_Graph):
     # graph_draw(graph_1,vertex_text=graph_1.vertex_index, vertex_font_size=18, eprops=graph_1.ep['weight'], output="two-nodes.png")
     cap = graph_1.edge_properties["weight"]
     # state = minimize_blockmodel_dl(graph_1,state_args=dict(recs=[graph_1.ep.weight],rec_types=["real-exponential"]))
-    graph_draw(graph_1,edge_text=cap, vertex_shape="double_circle",edge_color="black", vertex_text=graph_1.vertex_index,vertex_font_size=18, edge_font_size=18, edge_text_color = 'white',output="two-nodes.png")
+    graph_draw(graph_1,edge_text=cap, vertex_shape="double_circle",edge_color="black", vertex_text=graph_1.vertex_index,vertex_font_size=18, edge_font_size=18, edge_text_color = 'black',output="two-nodes.png")
     
     # state.draw( vertex_shape=state.get_blocks(), eprops=graph_1.ep.weight,,output="polbooks_blocks_mdl.pdf")
 
