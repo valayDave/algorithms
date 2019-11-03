@@ -1,6 +1,7 @@
 from typing import List
 from typing import Tuple
 from typing import Set
+from operator import itemgetter
 
 import random
 
@@ -220,7 +221,7 @@ def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
             new_val_1 = set(val_1)
             new_val_1.update(set(iterating_nodes[continuous_index:j]))
             new_s.update(new_val_1)
-            # print(new_s,continuous_index) 
+            print(new_s,continuous_index) 
             new_val1_str = ''.join([str(k) for k in list(new_s)])
             if new_val1_str in created_map:
                 continuous_index = j
@@ -229,7 +230,7 @@ def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
             val_2 = set(iterating_nodes) - new_val_1
             new_t = set(T)
             new_t.update(val_2)
-            # print(new_s,new_t,i,j)
+            print(new_s,new_t,i,j)
             possibles_cuts.append((new_s,new_t))
         
     return possibles_cuts
@@ -248,7 +249,7 @@ graph = [[0, 16, 13, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]] 
 
 
-test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(30)]
+test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(1)]
 results = [find_max_flow(test_case,SOURCE_NODE,SINK_NODE) for test_case in test_cases]
 
 
@@ -259,21 +260,74 @@ tests = list(zip(test_cases,results))
 for test_case,op in tests:
     max_flow,min_cuts = op
     all_possible_cuts = find_possible_cuts(test_case,SOURCE_NODE,SINK_NODE)
-    print('GRAPH :: \n',test_case.org_graph)
+    print('GRAPH ::','\n')
+    print(test_case.org_graph,'\n')
     print('Max Flow : ',max_flow,'\n')
     print('Min Cut : ',min_cuts,'\n')
+
+    # $ To Find cut set S,T : Do a BFS to find the nodes reachable from s in Residual Graph. They become part of S. 
+    parent_arr = [-1]*(test_case.ROW) 
+    while BFS(test_case,SOURCE_NODE, SINK_NODE, parent_arr ):
+        pass
+    reachable_indexes= set([SOURCE_NODE])
+    for i in range(len(parent_arr)):
+        if parent_arr[i]!=-1:
+            reachable_indexes.add(i)
+    reachable_indexes_S = set(reachable_indexes)
+    reachable_indexes_T = set([i for i in range(test_case.ROW)]) - reachable_indexes_S
+    flow_by_definition = find_flow_of_cut(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut = find_capacity_of_cut_sets(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case1 = capacity_case1(test_case,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case2 = capacity_case2(test_case,reachable_indexes_S,reachable_indexes_T) 
+    print('Extracting From BFS Of Residual Graph.','\n')
+    print('cuts :',reachable_indexes_S,reachable_indexes_T)
+    print('flow_by_definition',flow_by_definition)
+    print('capacity_of_cut',capacity_of_cut)
+    print('capacity_of_cut_case1',capacity_of_cut_case1)
+    print('capacity_of_cut_case2',capacity_of_cut_case2, '\n')
+
+
+    cut_data = []
     for cut in all_possible_cuts:
         S,T = cut
         flow_by_definition = find_flow_of_cut(test_case,S,T)
         capacity_of_cut = find_capacity_of_cut_sets(test_case,S,T)
         capacity_of_cut_case1 = capacity_case1(test_case,S,T)
         capacity_of_cut_case2 = capacity_case2(test_case,S,T) 
-        if capacity_of_cut == max_flow:
-            print("Testing Cut : ",cut, capacity_of_cut == max_flow)
-            print('max_flow',max_flow)
-            print("flow_by_definition ",flow_by_definition)
-            print('capacity_of_cut',capacity_of_cut)
-            print('capacity_of_cut_case1',capacity_of_cut_case1)
-            print('capacity_of_cut_case2',capacity_of_cut_case2,'\n')
-
+        cut_data.append((cut,flow_by_definition,capacity_of_cut_case1,capacity_of_cut_case2,capacity_of_cut))
+        # if flow_by_definition <= max_flow and flow_by_definition > 0:
+        #     print("Testing Cut : ",cut, capacity_of_cut == max_flow)
+        #     print('max_flow',max_flow)
+        #     print("flow_by_definition ",flow_by_definition)
+        #     print('capacity_of_cut',capacity_of_cut)
+        #     print('capacity_of_cut_case1',capacity_of_cut_case1)
+        #     print('capacity_of_cut_case2',capacity_of_cut_case2,'\n')
+    capacity_of_cut_case1_max_data = min(cut_data,key=itemgetter(2))
+    capacity_of_cut_case2_max_data = min(cut_data,key=itemgetter(3))
+    # print('max_flow',max_flow,'\n')
+    print("capacity_of_cut_case1_max_data",'\n')
+    print('cuts',capacity_of_cut_case1_max_data[0])
+    print('flow_by_definition',capacity_of_cut_case1_max_data[1])
+    print('capacity_case1',capacity_of_cut_case1_max_data[2])
+    print('capacity_case1',capacity_of_cut_case1_max_data[2])
+    print('capacity_case2',capacity_of_cut_case1_max_data[3])
+    print('capacity_of_cut',capacity_of_cut_case1_max_data[4],'\n')
     
+    print("capacity_of_cut_case2_max_data",'\n')
+    print('cuts',capacity_of_cut_case2_max_data[0])
+    print('flow_by_definition',capacity_of_cut_case2_max_data[1])
+    print('capacity_case1',capacity_of_cut_case2_max_data[2])
+    print('capacity_case2',capacity_of_cut_case2_max_data[3])
+    print('capacity_of_cut',capacity_of_cut_case2_max_data[4],'\n')
+
+    capacity_of_cut_min_data = min(cut_data,key=itemgetter(4))
+    print("capacity_of_cut_min_data",'\n')
+    print('cuts',capacity_of_cut_min_data[0])
+    print('flow_by_definition',capacity_of_cut_min_data[1])
+    print('capacity_case1',capacity_of_cut_min_data[2])
+    print('capacity_case2',capacity_of_cut_min_data[3])
+    print('capacity_of_cut',capacity_of_cut_min_data[4],'\n\n')
+    
+    for cut in cut_data:
+        print(*cut)
+        
