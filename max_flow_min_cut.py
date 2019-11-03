@@ -16,6 +16,40 @@ class Graph:
         self.org_graph =  [i[:] for i in matrix]
         self.ROW = len(matrix)
 
+class SubSetWithDup(object):
+  
+    def __init__(self):
+        self.result = []
+
+    def subsetsWithDup(self, nums):
+        nums = sorted(nums)
+        self.dfs(nums, [])
+        return self.result
+
+    def dfs(self, nums, path):
+        self.result.append(path)
+        for i in range(len(nums)):
+            if i == 0 or (i > 0 and nums[i-1] != nums[i]):
+                self.dfs(nums[i+1:], path+[nums[i]])
+
+def extract_set_combos(source_node:int,sink_node:int,left_overs:List):
+    left_overs_vals = SubSetWithDup().subsetsWithDup(left_overs)
+    # del len_hash_map[0]
+    # pprint.pprint(left_overs_vals)
+    S = set([source_node])
+    T = set([sink_node])
+    left_overs_set = set(left_overs)
+    combo_vals = []
+    for left_over_combo  in left_overs_vals:
+        new_s = set(S)
+        new_t = set(T)
+        new_s.update(left_over_combo)
+        new_t.update(left_overs_set - set(left_over_combo))
+        combo_vals.append((new_s,new_t))
+        # print(new_s,new_t)
+
+    return combo_vals
+
 
 '''Returns true if there is a path from source 's' to sink 't' in 
 residual graph. Also fills parent[] to store the path '''
@@ -50,7 +84,6 @@ def BFS(graph_object:Graph,s, t, parent):
     # true, else false 
     return True if visited[t] else False
             
-
 def create_graph(num_nodes=6,max_edge_value=20):
     graph = []
     for i in range(num_nodes):
@@ -68,7 +101,6 @@ def create_graph(num_nodes=6,max_edge_value=20):
                 
         graph.append(row)
     return graph
-
 
 def create_test_case(source_node=0,sink_node=5):
     num_nodes = abs(sink_node-source_node)+1
@@ -97,27 +129,29 @@ def find_capacity_of_cut_sets(graph_object:Graph,S:Set[int],T:Set[int]):
             capacity+=graph_object.org_graph[u][v]
     return capacity
 
-def find_cut_from_edges(graph_object:Graph,edges:List[Tuple[int,int]]):
-    S = set()
-    T = set()
-    V = set([i for i in range(graph_object.ROW)])
-    for source_node,goal_node in edges:
-        if source_node not in T:
-            S.add(source_node)
-        else:
-            S.update(V - T)
-            break
-        if goal_node not in S:
-            T.add(goal_node)
-        else:
-            S.update(V - T)
-            break
-    X = set(S)
-    if X.update(T) == V:
-        return S,T
-    else:
-        S.update(V - T)
-        return S,T
+# $ Done after the Max flow is extracted. It runs a BFS to see reachable nodes from the start node and those are the part of the cut. 
+def find_min_cut_from_redsidual_graph(graph_object:Graph,source_node:int,sink_node:int):
+    # $ To Find cut set S,T : Do a BFS to find the nodes reachable from s in Residual Graph. They become part of S. 
+    parent_arr = [-1]*(graph_object.ROW) 
+    while BFS(graph_object,source_node, sink_node, parent_arr ):
+        pass
+    reachable_indexes= set([source_node])
+    for i in range(len(parent_arr)):
+        if parent_arr[i]!=-1:
+            reachable_indexes.add(i)
+    
+    reachable_indexes_S = set(reachable_indexes)
+    reachable_indexes_T = set([i for i in range(graph_object.ROW)]) - reachable_indexes_S
+    flow_by_definition = find_flow_of_cut(graph_object,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut = find_capacity_of_cut_sets(graph_object,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case1 = capacity_case1(graph_object,reachable_indexes_S,reachable_indexes_T)
+    capacity_of_cut_case2 = capacity_case2(graph_object,reachable_indexes_S,reachable_indexes_T) 
+    print('Extracting CUT From BFS Of Residual Graph.','\n')
+    print('cuts :',reachable_indexes_S,reachable_indexes_T)
+    print('flow_by_definition',flow_by_definition)
+    print('capacity_of_cut',capacity_of_cut)
+    print('capacity_of_cut_case1',capacity_of_cut_case1)
+    print('capacity_of_cut_case2',capacity_of_cut_case2, '\n')
 
 def find_cut():
     # http://www.cs.toronto.edu/~lalla/373s16/notes/MFMC.pdf
@@ -205,35 +239,7 @@ def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
     left_nodes = V - S
     left_nodes = left_nodes - T
     left_nodes = list(left_nodes)
-    possibles_cuts = [
-        # S , T 
-    ]
-    created_map = {
-
-    }
-    for i in range(len(left_nodes)):
-        val_1 = set([left_nodes[i]])    
-        iterating_nodes = list(set(left_nodes) - val_1)
-        continuous_index = 0
-        # print(iterating_nodes)
-        for j in range(len(iterating_nodes)+1):
-            new_s = set(S)
-            new_val_1 = set(val_1)
-            new_val_1.update(set(iterating_nodes[continuous_index:j]))
-            new_s.update(new_val_1)
-            print(new_s,continuous_index) 
-            new_val1_str = ''.join([str(k) for k in list(new_s)])
-            if new_val1_str in created_map:
-                continuous_index = j
-                continue
-            created_map[new_val1_str] = 1
-            val_2 = set(iterating_nodes) - new_val_1
-            new_t = set(T)
-            new_t.update(val_2)
-            print(new_s,new_t,i,j)
-            possibles_cuts.append((new_s,new_t))
-        
-    return possibles_cuts
+    return extract_set_combos(source_node,sink_node,left_nodes)
 
 # $ ASSERTION “Maximum flow from a source node s to a destination node t is equal to capacity of the maximum cut”
 
@@ -252,8 +258,6 @@ graph = [[0, 16, 13, 0, 0, 0],
 test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(1)]
 results = [find_max_flow(test_case,SOURCE_NODE,SINK_NODE) for test_case in test_cases]
 
-
-
 tests = list(zip(test_cases,results))
 # tests = [(Graph(graph),find_max_flow(Graph(graph),0,5))]
 
@@ -265,28 +269,7 @@ for test_case,op in tests:
     print('Max Flow : ',max_flow,'\n')
     print('Min Cut : ',min_cuts,'\n')
 
-    # $ To Find cut set S,T : Do a BFS to find the nodes reachable from s in Residual Graph. They become part of S. 
-    parent_arr = [-1]*(test_case.ROW) 
-    while BFS(test_case,SOURCE_NODE, SINK_NODE, parent_arr ):
-        pass
-    reachable_indexes= set([SOURCE_NODE])
-    for i in range(len(parent_arr)):
-        if parent_arr[i]!=-1:
-            reachable_indexes.add(i)
-    reachable_indexes_S = set(reachable_indexes)
-    reachable_indexes_T = set([i for i in range(test_case.ROW)]) - reachable_indexes_S
-    flow_by_definition = find_flow_of_cut(test_case,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut = find_capacity_of_cut_sets(test_case,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut_case1 = capacity_case1(test_case,reachable_indexes_S,reachable_indexes_T)
-    capacity_of_cut_case2 = capacity_case2(test_case,reachable_indexes_S,reachable_indexes_T) 
-    print('Extracting From BFS Of Residual Graph.','\n')
-    print('cuts :',reachable_indexes_S,reachable_indexes_T)
-    print('flow_by_definition',flow_by_definition)
-    print('capacity_of_cut',capacity_of_cut)
-    print('capacity_of_cut_case1',capacity_of_cut_case1)
-    print('capacity_of_cut_case2',capacity_of_cut_case2, '\n')
-
-
+    find_min_cut_from_redsidual_graph(test_case,SOURCE_NODE,SINK_NODE)
     cut_data = []
     for cut in all_possible_cuts:
         S,T = cut
@@ -321,13 +304,13 @@ for test_case,op in tests:
     print('capacity_of_cut',capacity_of_cut_case2_max_data[4],'\n')
 
     capacity_of_cut_min_data = min(cut_data,key=itemgetter(4))
-    print("capacity_of_cut_min_data",'\n')
+    print("Capacity Cut From Min Capacity Of All Possible Cuts. ",'\n')
     print('cuts',capacity_of_cut_min_data[0])
     print('flow_by_definition',capacity_of_cut_min_data[1])
     print('capacity_case1',capacity_of_cut_min_data[2])
     print('capacity_case2',capacity_of_cut_min_data[3])
     print('capacity_of_cut',capacity_of_cut_min_data[4],'\n\n')
     
-    for cut in cut_data:
-        print(*cut)
+    # for cut in cut_data:
+    #     print(*cut)
         
