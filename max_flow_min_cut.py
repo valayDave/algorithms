@@ -71,7 +71,7 @@ def create_graph(num_nodes=6,max_edge_value=20):
 
 def create_test_case(source_node=0,sink_node=5):
     num_nodes = abs(sink_node-source_node)+1
-    print("Creating graph With node : ",num_nodes)
+    # print("Creating graph With node : ",num_nodes)
     created_graph = Graph(create_graph(num_nodes))
     parent = [-1]*(created_graph.ROW)
     if BFS(created_graph,source_node,sink_node,parent):
@@ -155,12 +155,12 @@ def find_max_flow(graph_object:Graph, source, sink):
 
 
         while(s !=  source):
-            print(path_flow, graph_object.graph[parent[s]][s])
+            # print(path_flow, graph_object.graph[parent[s]][s])
             path_flow = min (path_flow, graph_object.graph[parent[s]][s]) 
             s = parent[s] 
             x= (str(s)+'<--'+x)
 
-        print("Flow Attained From : "+x,path_flow)
+        # print("Flow Attained From : "+x,path_flow)
         # Add path flow to overall flow 
         max_flow +=  path_flow 
 
@@ -213,13 +213,14 @@ def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
     for i in range(len(left_nodes)):
         val_1 = set([left_nodes[i]])    
         iterating_nodes = list(set(left_nodes) - val_1)
-        continuous_index = i
+        continuous_index = 0
+        # print(iterating_nodes)
         for j in range(len(iterating_nodes)+1):
             new_s = set(S)
             new_val_1 = set(val_1)
             new_val_1.update(set(iterating_nodes[continuous_index:j]))
             new_s.update(new_val_1)
-            # print(new_s) 
+            # print(new_s,continuous_index) 
             new_val1_str = ''.join([str(k) for k in list(new_s)])
             if new_val1_str in created_map:
                 continuous_index = j
@@ -228,6 +229,7 @@ def find_possible_cuts(graph_object:Graph,source_node:int,sink_node:int):
             val_2 = set(iterating_nodes) - new_val_1
             new_t = set(T)
             new_t.update(val_2)
+            # print(new_s,new_t,i,j)
             possibles_cuts.append((new_s,new_t))
         
     return possibles_cuts
@@ -246,18 +248,18 @@ graph = [[0, 16, 13, 0, 0, 0],
         [0, 0, 0, 0, 0, 0]] 
 
 
-test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(1)]
+test_cases = [(create_test_case(SOURCE_NODE,SINK_NODE)) for i in range(30)]
 results = [find_max_flow(test_case,SOURCE_NODE,SINK_NODE) for test_case in test_cases]
 
 
 
-# tests = list(zip(test_cases,results))
-tests = [(Graph(graph),find_max_flow(Graph(graph),0,5))]
+tests = list(zip(test_cases,results))
+# tests = [(Graph(graph),find_max_flow(Graph(graph),0,5))]
 
 for test_case,op in tests:
-    print('GRAPH :: \n',test_case.org_graph)
     max_flow,min_cuts = op
     all_possible_cuts = find_possible_cuts(test_case,SOURCE_NODE,SINK_NODE)
+    print('GRAPH :: \n',test_case.org_graph)
     print('Max Flow : ',max_flow,'\n')
     print('Min Cut : ',min_cuts,'\n')
     for cut in all_possible_cuts:
@@ -266,11 +268,12 @@ for test_case,op in tests:
         capacity_of_cut = find_capacity_of_cut_sets(test_case,S,T)
         capacity_of_cut_case1 = capacity_case1(test_case,S,T)
         capacity_of_cut_case2 = capacity_case2(test_case,S,T) 
-        print("Testing Cut : ",cut, flow_by_definition == max_flow)
-        print('max_flow',max_flow)
-        print("flow_by_definition ",flow_by_definition)
-        print('capacity_of_cut',capacity_of_cut)
-        print('capacity_of_cut_case1',capacity_of_cut_case1)
-        print('capacity_of_cut_case2',capacity_of_cut_case2)
+        if capacity_of_cut == max_flow:
+            print("Testing Cut : ",cut, capacity_of_cut == max_flow)
+            print('max_flow',max_flow)
+            print("flow_by_definition ",flow_by_definition)
+            print('capacity_of_cut',capacity_of_cut)
+            print('capacity_of_cut_case1',capacity_of_cut_case1)
+            print('capacity_of_cut_case2',capacity_of_cut_case2,'\n')
 
     
